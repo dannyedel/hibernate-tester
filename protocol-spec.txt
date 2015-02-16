@@ -1,0 +1,48 @@
+This is the protocol that server (testrunner) and client (device under test)
+should speak to each other.
+
+Ideally, we'd implement some kind of error-checking in case they dont...
+Note that it is always the client that opens a TCP connection, and the
+connections are very short lived. The server is supposed to keep the state
+somewhere.
+
+Rationale: If we leave the connection open, and the client goes to sleep, the
+server's OS might kill the connection (keepalives) or increase any timeouts
+so much, that the connection would wait for hours before attempting a new
+packet - even if the client is up again.
+
+Still to be determined: TCP ports in use.
+
+> means client sends to server
+< means server replies to client
+All commands are terminated by newline
+
+1: Download service
+
+> DOWNLOAD
+< [a full /bin/bash script that executes the client side]
+
+2.1: Telling server which are known to work, and accept commands
+
+> KNOWNGOOD
+> [proc/modules]
+
+2.2: Now the server will calculate which module to load next
+
+> LOADWHAT
+< [single module name to load]
+
+NOTE: If the server replies with an empty line, client quits program. Success.
+
+2.3: Now the client will modprobe the module and tell the server what is now
+loaded
+
+> LOADED
+> [/proc/modules]
+
+Now the client will execute:
+
+echo reboot > /sys/power/disk
+echo disk > /sys/power/state
+
+and go back to 2.1

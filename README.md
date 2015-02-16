@@ -88,7 +88,7 @@ and execute it (obviously, adapt the IP addresses):
 # device under test:
 mount -t tmpfs tmpfs /tmp
 cd /tmp
-netcat -d [ip-of-supervisor] [port] > testrunner.sh
+echo "DOWNLOAD" | netcat -d [ip-of-supervisor] [port] > testrunner.sh
 bash testrunner.sh
 ```
 
