@@ -47,3 +47,9 @@ std::ostream& operator << ( std::ostream& where, const module_collection& what )
 /** Returns everything in lhs that is NOT in rhs
  * */
 module_collection operator - ( const module_collection & lhs, const module_collection & rhs );
+
+/** Do some mumbo jumbo to figure out the best module to test now
+ * 
+ *  FIXME this simply uses the alphabetically first
+ */
+module_entry pick_best_test_candidate( const module_collection& to_be_tested );

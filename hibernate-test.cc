@@ -12,14 +12,39 @@ int main(int argc,char** argv) {
 	vector<string> parameters = parse_argc_argv(argc,argv);
 
 	// Construct full-modules from textfile
-	module_collection target_modules{};
+	module_collection target_modules;
 	{
-		string filename{ parameters.at(0) };
-		ifstream procfile;
-		procfile.exceptions( ios::failbit | ios::badbit );
-		procfile.open(filename);
-		clog << "Opened " << filename << endl;
+		
+		ifstream procfile( parameters.at(1) );
 		target_modules = parse_proc_modules(procfile);
 	}
-	clog << target_modules;
+	clog << "Target modules: " << target_modules;
+	
+	module_collection known_good;
+	{
+		ifstream goodfile( parameters.at(2) );
+		known_good = parse_proc_modules(goodfile);
+	}
+	clog << "Known to work: " << known_good;
+	
+	module_collection to_be_tested = target_modules - known_good;
+	
+	if ( to_be_tested.empty() ) {
+		clog << "All tested, we're done." << endl;
+		return 0;
+	}
+	
+	module_entry to_modprobe = pick_best_test_candidate(to_be_tested);
+	clog << "Next to test: " << to_modprobe << endl;
+	
+	/** FIXME **/
+	cout << "FIXME: LOADING " << to_modprobe << endl;
+	
+	module_collection actually_loaded;
+	{
+		ifstream actually( parameters.at(3) );
+		actually_loaded = parse_proc_modules(actually);
+	}
+	module_collection currently_testing = actually_loaded - known_good;
+	clog << "Modprobe loaded, NOW TESTING: " << currently_testing;
 }
