@@ -4,12 +4,17 @@ using boost::asio::ip::tcp;
 using namespace std;
 
 server::server(const module_collection& target):
-	target_modules(target), known_good(), currently_loaded()
+	target_modules(target), known_good(), currently_loaded(), told_to_test("")
 {
 
 }
 
 struct eof_exception: public std::runtime_error {
+public:
+	using std::runtime_error::runtime_error;
+};
+
+struct finished: public std::runtime_error {
 public:
 	using std::runtime_error::runtime_error;
 };
@@ -43,7 +48,11 @@ void server::run()
 			loaded( socket, buffer );
 		}
 		else if ( command_word == "LOADWHAT" ) {
-			loadwhat(socket);
+			try{
+				loadwhat(socket);
+			}catch(finished&e) {
+				break;
+			}
 		}
 		else {
 			cerr << "WARNING: Received unknown command word " << command_word << endl;
@@ -106,13 +115,32 @@ void server::loaded(tcp::socket& socket, boost::asio::streambuf& buffer)
 	module_collection loaded = readProcModules(socket, buffer);
 	clog << "Received loaded modules from client: " << loaded << endl;
 	currently_loaded = move(loaded);
-	clog << "INFO: The client is now testing " << currently_loaded - known_good << endl;
+	module_collection currently_testing = currently_loaded - known_good;
+	clog << "INFO: The client is now testing " << currently_testing<< endl;
+	
+	if ( currently_testing.find(told_to_test) == currently_testing.end() ) {
+		cerr << "WARNING: The module we just told to test, " << told_to_test
+		<< ", is not included in that list!" << endl;
+	}
+	
+	if ( currently_testing.empty() ) {
+		cerr << "ERROR: The client is not testing any new module!" << endl;
+		cerr << "ERROR: To prevent endless loop, terminating now." << endl;
+		throw std::runtime_error("Unexpected client behaviour");
+	}
 }
 
 void server::loadwhat(tcp::socket& socket)
 {
 	module_collection toBeTested = target_modules - known_good;
-	module_entry bestCandidate = pick_best_test_candidate(toBeTested);
-	clog << "Telling the client to load " << bestCandidate << endl;
-	writeline(socket, bestCandidate.name );
+	if ( toBeTested.empty() ) {
+		clog << "There are no more modules to test! Client finished" << endl;
+		writeline(socket, "");
+		throw finished("Testing has successfully finished");
+	} else {
+		module_entry bestCandidate = pick_best_test_candidate(toBeTested);
+		clog << "Telling the client to load " << bestCandidate << endl;
+		told_to_test = bestCandidate;
+		writeline(socket, bestCandidate.name );
+	}
 }

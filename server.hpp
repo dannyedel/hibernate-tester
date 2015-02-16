@@ -13,6 +13,8 @@ private:
 	module_collection known_good;
 	/** List of currently loaded modules on the client */
 	module_collection currently_loaded;
+	
+	module_entry told_to_test;
 public:
 	/** Initializes server, starts listening */
 	explicit server( const module_collection& target );
