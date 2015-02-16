@@ -42,7 +42,7 @@ Personally I recommend using netcat for quick file transfers like this:
 
 ```bash
 # supervisor:
-netcat -d -l 6666 > full-modules
+netcat -d -l 6666 > target-modules
 # device under test:
 netcat -q1 other-computers-ip 6666 < /proc/modules
 ```
@@ -59,37 +59,46 @@ with `linux`, append your `init=/bin/bash` (watch out, you'll probably have
 a US keyboard layout, `=` is next to backspace, `/` is next to right shift)
 and hit `F10` (boot) while in the editor.
 
-Now, *make sure basic hibernate-reboot works with your network driver*.
+Now, get an IP connection with your test server up and running:
+
 ```bash
 # device under test:
 # 1. enable your swap partition/file
 swapon -a
-# 2. enable auto-reboot
-echo reboot > /sys/power/disk
-# 3. start network, verify it works
+# 2. start network, verify it works
 modprobe r8169 # your driver here
 ip link set up dev eth0
 ip address add 10.x.y.z/m dev eth0
 ip route add default via 10.a.b.c
 ping -c 1 [ip-of-test-server]
-# 4. test it
-echo disk > /sys/power/state
 ```
-
-This command should initiate a hibernation, reboot and bring you back to the
-exact prompt you just typed `echo disk > ...`.
-
-**WARNING: If you don't get back to the prompt, please go back to the
-in-kernel-documentation; this script isn't for you.**
 
 Now, mount a `tmpfs`, enter it, configure network, download the test-driver
 and execute it (obviously, adapt the IP addresses):
+
+## Upload the test program to the client and start the testrunner
+
+```bash
+# server
+cat client.sh | netcat -vvl 6667
+# now use the file you transferred earlier
+./hibernation-tester target-modules
+```
+
+
 ```bash
 # device under test:
 mount -t tmpfs tmpfs /tmp
 cd /tmp
-echo "DOWNLOAD" | netcat -d [ip-of-supervisor] [port] > testrunner.sh
-bash testrunner.sh
+netcat -q1 [IP] 6667 > testrunner.sh
+bash testrunner.sh [IP]
 ```
 
+
 Get coffee, watch the supervisor's output until the "bad" module is identified.
+
+The server will usually wait a while at the output
+
+`INFO: The client is now testing xxxxxxxxx`
+
+If your client now freezes, you have the culprit.
