@@ -35,12 +35,19 @@ loaded
 > LOADED
 > [/proc/modules]
 
-2.3: Client tries to hibernate
+2.3: Client asks server if it should unload known bad modules (that would freeze
+the system)
+> UNLOADWHAT
+< [list of known modules, one per line
+
+If this list is non-empty, client tries to unload the modules and goes back to 2.1
+
+2.4: Client tries to hibernate
 
 echo reboot > /sys/power/disk
 echo disk > /sys/power/state
 
-2.4 If we wake up again, we know those modules work, so tell that to the server
+2.5 If we wake up again, we know those modules work, so tell that to the server
 
 > KNOWNGOOD
 > [proc/modules]

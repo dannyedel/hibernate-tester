@@ -84,6 +84,8 @@ cat client.sh | netcat -vvl 6667
 # now use the file you transferred earlier
 ./hibernation-tester target-modules
 ```
+Note that the server will write a file named `known_good_modules` in its current
+working directory.
 
 
 ```bash
@@ -101,4 +103,18 @@ The server will usually wait a while at the output
 
 `INFO: The client is now testing xxxxxxxxx`
 
-If your client now freezes, you have the culprit.
+If your client now freezes, you have a likely bad module. You can safely `CTRL+C`
+the server process.
+
+## Resuming the test session after a lockup
+
+On the server, you now have the `known_good_modules` file containing the modules
+that survived a reboot.
+
+You have to manually create a "known bad" file containing the modules you suspect
+to be bad (one per line).
+Now call the server as
+
+`./hibernation-tester target-modules known_good_modules known_bad_modules`
+
+and resume.

@@ -24,6 +24,13 @@ while true; do
 	echo "modprobe'ing $LOADWHAT"
 	modprobe -v $LOADWHAT
 	( echo "LOADED" ; cat /proc/modules ) | netcat -vvn -q1 $SERVER $PORT
+	echo "checking for unloading instructions"
+	UNLOADWHAT=$(echo "UNLOADWHAT" | netcat -vvn -q1 $SERVER $PORT)
+	if [ -n "$UNLOADWHAT" ] ; then
+		echo "Trying to unload $UNLOADWHAT"
+		modprobe -v -r "$UNLOADWHAT"
+		continue
+	fi
 	echo "REBOOTING"
 	echo reboot > /sys/power/disk
 	echo disk > /sys/power/state

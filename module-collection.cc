@@ -71,3 +71,19 @@ module_entry pick_best_test_candidate(const module_collection& to_be_tested)
 	/** FIXME **/
 	return *to_be_tested.cbegin();
 }
+
+module_collection operator&(const module_collection& lhs, const module_collection& rhs)
+{
+	module_collection ret;
+	set_intersection( lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(),
+		inserter(ret, ret.begin()) );
+	return ret;
+}
+
+module_collection operator+(const module_collection& lhs, const module_collection& rhs)
+{
+	module_collection ret;
+	set_union( lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(),
+			   inserter(ret, ret.begin()) );
+	return ret;
+}

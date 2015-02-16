@@ -11,6 +11,11 @@ using namespace std;
 
 int main(int argc,char** argv) {
 	vector<string> parameters = parse_argc_argv(argc,argv);
+	
+	if ( parameters.size() < 2 ) {
+		cerr << "Usage: " << parameters.at(0) << " <target-module-file> [known-good-startfile] [known-bad-startfile]" << endl;
+		return 1;
+	}
 
 	// Construct full-modules from textfile
 	module_collection target_modules;
@@ -21,7 +26,21 @@ int main(int argc,char** argv) {
 	}
 	clog << "Target modules: " << target_modules;
 	
-	server s( target_modules );
+	module_collection known_good_modules;
+	if ( parameters.size() >= 3 ) {
+		eifstream knowngoodfile( parameters.at(2) );
+		known_good_modules = parse_proc_modules(knowngoodfile);
+	}
+	clog << "Known good modules: " << known_good_modules;
+	
+	module_collection known_bad_modules;
+	if ( parameters.size() >= 4 ) {
+		eifstream knownbadfile( parameters.at(3) );
+		known_bad_modules = parse_proc_modules(knownbadfile);
+	}
+	clog << "Known bad modules: " << known_bad_modules;
+	
+	server s( target_modules, known_good_modules, known_bad_modules );
 	
 	clog << "Starting server" << endl;
 	

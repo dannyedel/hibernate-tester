@@ -48,6 +48,15 @@ std::ostream& operator << ( std::ostream& where, const module_collection& what )
  * */
 module_collection operator - ( const module_collection & lhs, const module_collection & rhs );
 
+/** Returns everything in lhs AND in rhs
+ */
+module_collection operator & ( const module_collection& lhs, const module_collection& rhs );
+
+/** Returns the union of lhs and rhs
+ * (everything that is in at least one of them )
+ */
+module_collection operator + ( const module_collection& lhs, const module_collection& rhs );
+
 /** Do some mumbo jumbo to figure out the best module to test now
  * 
  *  FIXME this simply uses the alphabetically first
