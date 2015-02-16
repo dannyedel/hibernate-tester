@@ -35,7 +35,7 @@ while true; do
 	echo reboot > /sys/power/disk
 	echo disk > /sys/power/state
 	echo "Sleeping a bit for the network to get back up"
-	sleep 1 # wait for network to recover
+	sleep 5 # wait for network to recover
 	echo "Sending known good modules"
 	( echo "KNOWNGOOD" ; cat /proc/modules ) | netcat -vvn -q1 $SERVER $PORT
 done
