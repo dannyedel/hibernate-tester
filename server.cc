@@ -1,6 +1,8 @@
 #include "server.hpp"
 #include <fstream>
 
+#include "client_sh.h"
+
 using boost::asio::ip::tcp;
 using namespace std;
 
@@ -81,7 +83,12 @@ void server::run()
 
 void server::download(tcp::socket& socket )
 {
-	writeline(socket, "Not yet implemented");
+	/** FIXME: reinterpret_cast assumes that the bit-pattern of a char*
+	 * and this array is exactly the same
+	 */
+	const std::string clientProgram{
+		reinterpret_cast<char*>(client_sh), client_sh_len };
+	writeline(socket, clientProgram);
 }
 string server::readline(tcp::socket& socket, boost::asio::streambuf& buffer)
 {
