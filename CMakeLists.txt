@@ -11,6 +11,7 @@ set(hibernate_sources
 	hibernate-test
 	module-collection
 	helpers
+	server
 )
 
 add_executable(hibernate-tester ${hibernate_sources})

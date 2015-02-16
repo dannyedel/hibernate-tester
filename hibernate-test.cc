@@ -5,6 +5,7 @@
 
 #include "module-collection.hpp"
 #include "helpers.hpp"
+#include "server.hpp"
 
 using namespace std;
 
@@ -15,14 +16,23 @@ int main(int argc,char** argv) {
 	module_collection target_modules;
 	{
 		
-		ifstream procfile( parameters.at(1) );
+		eifstream procfile( parameters.at(1) );
 		target_modules = parse_proc_modules(procfile);
 	}
 	clog << "Target modules: " << target_modules;
 	
+	server s( target_modules );
+	
+	clog << "Starting server" << endl;
+	
+	s.run();
+}
+
+#if 0
+	
 	module_collection known_good;
 	{
-		ifstream goodfile( parameters.at(2) );
+		eifstream goodfile( parameters.at(2) );
 		known_good = parse_proc_modules(goodfile);
 	}
 	clog << "Known to work: " << known_good;
@@ -42,9 +52,10 @@ int main(int argc,char** argv) {
 	
 	module_collection actually_loaded;
 	{
-		ifstream actually( parameters.at(3) );
+		eifstream actually( parameters.at(3) );
 		actually_loaded = parse_proc_modules(actually);
 	}
 	module_collection currently_testing = actually_loaded - known_good;
 	clog << "Modprobe loaded, NOW TESTING: " << currently_testing;
-}
+	
+#endif
