@@ -22,27 +22,27 @@ All commands are terminated by newline
 > DOWNLOAD
 < [a full /bin/bash script that executes the client side]
 
-2.1: Telling server which are known to work, and accept commands
-
-> KNOWNGOOD
-> [proc/modules]
-
-2.2: Now the server will calculate which module to load next
+2.1: Ask the server which module to load
 
 > LOADWHAT
 < [single module name to load]
 
 NOTE: If the server replies with an empty line, client quits program. Success.
 
-2.3: Now the client will modprobe the module and tell the server what is now
+2.2: Now the client will modprobe the module and tell the server what is now
 loaded
 
 > LOADED
 > [/proc/modules]
 
-Now the client will execute:
+2.3: Client tries to hibernate
 
 echo reboot > /sys/power/disk
 echo disk > /sys/power/state
 
-and go back to 2.1
+2.4 If we wake up again, we know those modules work, so tell that to the server
+
+> KNOWNGOOD
+> [proc/modules]
+
+Now go back to 2.1
